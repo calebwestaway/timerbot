@@ -36,10 +36,32 @@ client.once(Events.ClientReady, (readyClient) => {
         rl.close();
         exit(0);
         break;
+      case "send":
+        if (commandSplit.length != 3) {
+          console.log("Usage: send <channelId> <message>");
+        } else {
+          const channelId: string = commandSplit[1];
+          const message: string = commandSplit[2];
+          const channel = client.channels.cache.get(channelId);
+          if (!channel) {
+            console.log(`Channel ${channelId} not found`);
+          } else {
+            if (channel.type !== ChannelType.GuildText) {
+              console.log(`Channel ${channelId} is not a text channel`);
+              break;
+            }
+            (channel as TextChannel).send(message);
+            console.log(`Sent message to channel ${channelId}`);
+          }
+        }
+        break;
       case "help":
         console.log("Commands:");
         console.log("  exit: Exit the program");
         console.log("  help: Show this help message");
+        console.log(
+          "  send <channelId> <message>: Send a message to a channel",
+        );
         break;
       default:
         console.log(`Unknown command: ${command}. Type "help" for help`);
