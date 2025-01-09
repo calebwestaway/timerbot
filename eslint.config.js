@@ -12,7 +12,7 @@ export default [
   {
     languageOptions: {
       globals: globals.node,
-      parser: tseslint.parser,
+      parser: tsEslint.parser,
       parserOptions: {
         projectService: true,
         tsconfigRootDir: import.meta.dirname,
