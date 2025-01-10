@@ -1,13 +1,6 @@
 import * as readline from "node:readline/promises";
-import {
-  ChannelType,
-  Client,
-  Events,
-  GatewayIntentBits,
-  TextChannel,
-} from "discord.js";
+import { ChannelType, Client, Events, GatewayIntentBits } from "discord.js";
 import "dotenv/config";
-import { exit } from "node:process";
 
 const rl: readline.Interface = readline.createInterface({
   input: process.stdin,
@@ -32,9 +25,12 @@ client.once(Events.ClientReady, (readyClient) => {
     switch (commandSplit[0]) {
       case "exit":
         console.log("Exiting");
-        client.destroy();
+        client.destroy().catch(() => {
+          console.error("Failed to destroy client, force exiting");
+          process.exit(1);
+        });
         rl.close();
-        exit(0);
+        process.exit(0);
         break;
       case "send":
         if (commandSplit.length != 3) {
@@ -50,7 +46,10 @@ client.once(Events.ClientReady, (readyClient) => {
               console.log(`Channel ${channelId} is not a text channel`);
               break;
             }
-            (channel as TextChannel).send(message);
+            channel.send(message).catch((err: unknown) => {
+              console.error(`Failed to send message to channel ${channelId}`);
+              console.error(err);
+            });
             console.log(`Sent message to channel ${channelId}`);
           }
         }
@@ -71,4 +70,8 @@ client.once(Events.ClientReady, (readyClient) => {
   });
 });
 
-client.login(process.env.TOKEN);
+client.login(process.env.TOKEN).catch((err: unknown) => {
+  console.error("Failed to login!");
+  console.error(err);
+  process.exit(1);
+});
